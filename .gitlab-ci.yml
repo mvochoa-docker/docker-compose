@@ -18,14 +18,6 @@
   tags:
     - docker
 
-docker-compose:test:
-  image: alpine:3.8
-  script:
-    - apk add --update curl jq bash
-    - ./description.sh mvochoa/$(echo $CI_JOB_NAME | sed 's/:.*/\1/')
-  tags:
-    - docker
-
 docker-compose:latest:
   extends: .docker
   before_script:
