@@ -1,4 +1,5 @@
 FROM docker:latest
+LABEL maintainer="mario@mvochoa.com"
 
 ENV VERSION 1.24.0
 

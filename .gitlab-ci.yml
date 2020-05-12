@@ -1,0 +1,41 @@
+.docker:
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  variables:
+    DOCKER_HOST: docker:2375
+  script:
+    - docker build -t $CI_JOB_NAME .
+    - docker login -u $CI_DOCKER_GITLAB_USER -p $CI_DOCKER_GITLAB_PASSWORD $CI_REGISTRY
+    - docker tag $CI_JOB_NAME registry.gitlab.com/mvochoa-docker/$CI_JOB_NAME
+    - docker push registry.gitlab.com/mvochoa-docker/$CI_JOB_NAME
+    - docker login -u $CI_DOCKER_USER -p $CI_DOCKER_PASSWORD
+    - docker tag $CI_JOB_NAME mvochoa/$CI_JOB_NAME
+    - docker push mvochoa/$CI_JOB_NAME
+  after_script:
+    - apk add --update curl jq bash
+    - ./description.sh mvochoa/$(echo $CI_JOB_NAME | sed 's/:.*/\1/')
+  tags:
+    - docker
+
+docker-compose:latest:
+  extends: .docker
+  before_script:
+    - cd 1.24.0-alpine/
+  only:
+    refs:
+      - master
+    changes:
+      - 1.24.0-alpine/*
+      - 1.24.0-alpine/**/*
+
+docker-compose:1.24.0-alpine:
+  extends: .docker
+  before_script:
+    - cd 1.24.0-alpine/
+  only:
+    refs:
+      - master
+    changes:
+      - 1.24.0-alpine/*
+      - 1.24.0-alpine/**/*
